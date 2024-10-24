@@ -14,11 +14,37 @@ spec:
           value: $(workspaces.source.path)
       script: |
         #!/bin/sh
-        if [ -d "$(WORKSPACE_SOURCE_PATH)" ]; then
+        if [ -d "$WORKSPACE_SOURCE_PATH" ]; then
           # Delete non-hidden files and directories
-          rm -rf $(WORKSPACE_SOURCE_PATH)/*
+          rm -rf "$WORKSPACE_SOURCE_PATH"/*
           # Delete files and directories starting with . but excluding ..
-          rm -rf $(WORKSPACE_SOURCE_PATH)/.[!.]*
+          rm -rf "$WORKSPACE_SOURCE_PATH"/.[!.]*
           # Delete files and directories starting with .. plus any other character
-          rm -rf $(WORKSPACE_SOURCE_PATH)/..?*
+          rm -rf "$WORKSPACE_SOURCE_PATH"/..?*
         fi
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: nose
+spec:
+  workspaces:
+    - name: source
+  params:
+    - name: args
+      description: Arguments to pass to nosetests
+      type: string
+      default: "-v"
+  steps:
+    - name: run-nose-tests
+      image: python:3
+      script: |
+        #!/bin/bash
+        set -e
+        # Upgrade pip and wheel
+        python -m pip install --upgrade pip wheel
+        # Install dependencies
+        pip install -r requirements.txt
+        # Run nosetests with the provided arguments
+        nosetests ${{params.args}}
