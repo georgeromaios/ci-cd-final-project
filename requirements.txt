@@ -1,3 +1,4 @@
 flake8==6.1.0      # Latest version of flake8 for linting
 nose==1.3.7        # A test runner for Python, used to run unit tests
 coverage==7.3.1    # Tracks code coverage during test runs
+nose-spec==1.0.0
